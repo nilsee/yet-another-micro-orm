@@ -25,4 +25,6 @@ hs_err_pid*
 #
 .idea
 yet-another-micro-orm.iml
-demo/target/
+yet-another-micro-orm-core/target/
+yet-another-micro-orm-demo/target/
+*.properties

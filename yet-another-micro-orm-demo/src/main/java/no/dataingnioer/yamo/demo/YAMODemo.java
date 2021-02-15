@@ -1,29 +1,31 @@
-package no.dataingenioer.yamo.demo;
+package no.dataingnioer.yamo.demo;
 
 import java.util.Iterator;
 import java.util.List;
 
-
-import no.dataingenioer.yamo.MicroORM;
-import no.dataingenioer.yamo.YetAnotherMicroORM;
-import no.dataingenioer.yamo.utils.ConnectionSettings;
+import no.dataingenioer.yamo.core.MicroORM;
+import no.dataingenioer.yamo.core.YetAnotherMicroORM;
+import no.dataingenioer.yamo.core.utils.ConnectionSettings;
 
 public class YAMODemo {
 
     public static void main(String [] args) throws Exception {
 
-        ConnectionSettings connectionSettings;
-        connectionSettings = ConnectionSettings.getConnectionSettings("config");
+        ConnectionSettings connectionSettings = ConnectionSettings.getConnectionSettings(getConfigFile("configuration.properties"));
+
         MicroORM yetAnotherMicroORM = new YetAnotherMicroORM(connectionSettings);
 
         //testInsert(yetAnotherMicroORM);
-
         //testUpdate(yetAnotherMicroORM);
         testSelect(yetAnotherMicroORM);
-        System.out.println("----------");
+        //System.out.println("----------");
         //testDelete(yetAnotherMicroORM);
         //testSelect(yetAnotherMicroORM);
+    }
 
+    private static String getConfigFile(String fileName) {
+        String workingDirectory = System.getProperty("user.dir");
+        return workingDirectory + "/demo/src/main/java/no/dataingenioer/yamo/demo/" + fileName;
     }
 
     public static void testInsert(MicroORM yetAnotherMicroORM)
@@ -95,4 +97,5 @@ public class YAMODemo {
             ex.printStackTrace();
         }
     }
+
 }

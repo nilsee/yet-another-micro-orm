@@ -1,4 +1,4 @@
-package no.dataingenioer.yamo.demo;
+package no.dataingnioer.yamo.demo;
 
 public class Employee {
     public int id;

@@ -1,4 +1,4 @@
-package no.dataingenioer.yamo;
+package no.dataingenioer.yamo.core;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -12,14 +12,14 @@ import java.util.LinkedList;
 import java.util.List;
 import org.httprpc.sql.Parameters;
 
-import no.dataingenioer.yamo.utils.ConnectionSettings;
+import no.dataingenioer.yamo.core.utils.ConnectionSettings;
 
 /**
  * @Author Nils Einar Eide
  * @Email nils@dataingenioer.no
  */
-public class YetAnotherMicroORM implements MicroORM {
-
+public class YetAnotherMicroORM implements MicroORM
+{
     /**
      *
      */
@@ -101,7 +101,7 @@ public class YetAnotherMicroORM implements MicroORM {
     public <T> boolean insertQuery(String sql, T entity)
             throws SQLException, IllegalAccessException
     {
-        return this.writer(sql, entity);
+        return writer(sql, entity);
     }
 
     /**

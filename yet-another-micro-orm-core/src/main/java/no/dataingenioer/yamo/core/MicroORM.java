@@ -1,4 +1,4 @@
-package no.dataingenioer.yamo;
+package no.dataingenioer.yamo.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;

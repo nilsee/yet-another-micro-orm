@@ -1,4 +1,9 @@
-package no.dataingenioer.yamo.utils;
+package no.dataingenioer.yamo.core.utils;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class ConnectionSettings {
 
@@ -13,6 +18,7 @@ public class ConnectionSettings {
     }
 
     public ConnectionSettings(String name, String url, String database, String driver, String username, String password) {
+
         this.name = name;
         this.url = url;
         this.database = database;
@@ -21,14 +27,24 @@ public class ConnectionSettings {
         this.password = password;
     }
 
-    // TODO: Get from configuration file
-    public static ConnectionSettings getConnectionSettings(String connectionSettingsName){
-        return new ConnectionSettings(connectionSettingsName,
-                "jdbc:postgresql://localhost:5432",
-                "hibernatedb",
-                "org.postgresql.Driver",
-                "hibernate",
-                "forjava");
+    public static ConnectionSettings getConnectionSettings(String connectionSettingsFileName) throws IOException {
+
+        Properties properties =  readPorperties(connectionSettingsFileName);
+
+        return new ConnectionSettings(connectionSettingsFileName,
+                properties.getProperty("yamo.url"),
+                properties.getProperty("yamo.database"),
+                properties.getProperty("yamo.driver"),
+                properties.getProperty("yamo.username"),
+                properties.getProperty("yamo.password"));
+    }
+
+    private static Properties readPorperties(String fileName) throws IOException {
+
+        Properties prop = new Properties();
+        InputStream is = new FileInputStream(fileName);
+        prop.load(is);
+        return prop;
     }
 
     public String getName() {
@@ -39,7 +55,9 @@ public class ConnectionSettings {
         return url;
     }
 
-    public String getDriver() { return driver; }
+    public String getDriver() {
+        return driver;
+    }
 
     public String getUsername() {
         return username;
@@ -49,7 +67,9 @@ public class ConnectionSettings {
         return password;
     }
 
-    public String getDatabase() { return database; }
+    public String getDatabase() {
+        return database;
+    }
 
     public String getUrlWithDatabase() {
         String connectionString = getUrl();
