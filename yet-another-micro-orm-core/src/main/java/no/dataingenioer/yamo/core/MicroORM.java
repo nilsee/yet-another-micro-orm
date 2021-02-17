@@ -20,7 +20,7 @@ public interface MicroORM {
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    <T> boolean insertQuery(String sql, T entity) throws
+    <T> boolean insert(String sql, T entity) throws
             SQLException, IllegalAccessException;
 
     // Read
@@ -37,14 +37,13 @@ public interface MicroORM {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    <T> List<T> selectQuery(String sql, Class<T> type) throws
+    <T> List<T> select(String sql, Class<T> type) throws
             SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException;
 
     /**
      *
      * @param sql
      * @param type
-     * @param id
      * @param <T>
      * @return
      * @throws SQLException
@@ -53,7 +52,7 @@ public interface MicroORM {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    <T> T selectQuery(String sql, Class<T> type, int id) throws
+    <T> T selectSingle(String sql, Class<T> type) throws
             SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException;
 
     // Update
@@ -67,7 +66,7 @@ public interface MicroORM {
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    <T> boolean updateQuery(String sql, T entity) throws
+    <T> boolean update(String sql, T entity) throws
             SQLException, IllegalAccessException;
 
     // Delete
@@ -81,7 +80,7 @@ public interface MicroORM {
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    <T> boolean deleteQuery(String sql, T entity) throws
+    <T> boolean delete(String sql, T entity) throws
             SQLException, IllegalAccessException;
 
 }

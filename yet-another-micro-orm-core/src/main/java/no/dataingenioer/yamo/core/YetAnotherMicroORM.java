@@ -10,15 +10,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.httprpc.sql.Parameters;
 
+import no.dataingenioer.yamo.core.annotations.Column;
+import no.dataingenioer.yamo.core.annotations.Exclude;
 import no.dataingenioer.yamo.core.utils.ConnectionSettings;
 
 /**
  * @Author Nils Einar Eide
  * @Email nils@dataingenioer.no
  */
-public class YetAnotherMicroORM implements MicroORM
+public final class YetAnotherMicroORM implements MicroORM
 {
     /**
      *
@@ -30,22 +33,10 @@ public class YetAnotherMicroORM implements MicroORM
      * @param settings
      * @throws Exception
      */
-    public YetAnotherMicroORM(ConnectionSettings settings) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public YetAnotherMicroORM(ConnectionSettings settings)
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.settings = settings;
         Class.forName(settings.getDriver()).newInstance();
-    }
-
-    /**
-     *
-     * @return Open database connection
-     * @throws Exception
-     */
-    private Connection getConnection() throws SQLException {
-        Connection myConnection = DriverManager
-                .getConnection( settings.getUrlWithDatabase(),
-                                settings.getUsername(),
-                                settings.getPassword());
-        return myConnection;
     }
 
     /**
@@ -56,7 +47,7 @@ public class YetAnotherMicroORM implements MicroORM
      * @return
      * @throws Exception
      */
-    public <T> List<T> selectQuery(String sql, Class<T> type)
+    public <T> List<T> select(String sql, Class<T> type)
             throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
     {
         List<T> results = new LinkedList<T>();
@@ -65,15 +56,19 @@ public class YetAnotherMicroORM implements MicroORM
         Statement myStatement = myConnection.createStatement();
         ResultSet resultSet = myStatement.executeQuery(sql);
 
-        Field[] fields = type.getFields();
+        Field[] fields = type.getDeclaredFields();
         while (resultSet.next())
         {
             T entity = type.getConstructor().newInstance();
             for (Field field : fields)
             {
-                String fieldName = field.getName();
-                Object colum = resultSet.getObject(fieldName);
-                field.set(entity, colum);
+                if( ! field.isAnnotationPresent(Exclude.class) ) {
+
+                    String fieldName = getFieldName(field);
+                    Object colum = resultSet.getObject(fieldName);
+                    field.setAccessible(true);
+                    field.set(entity, colum);
+                }
             }
             results.add(entity);
         }
@@ -83,10 +78,46 @@ public class YetAnotherMicroORM implements MicroORM
         return results;
     }
 
-    public <T> T selectQuery(String sql, Class<T> type, int id)
+    /**
+     *
+     * @param sql
+     * @param type
+     * @param <T>
+     * @return
+     * @throws SQLException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws InstantiationException
+     */
+    public <T> T selectSingle(String sql, Class<T> type)
             throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
     {
-        return null;
+
+        Connection myConnection = getConnection();
+        Statement myStatement = myConnection.createStatement();
+        ResultSet resultSet = myStatement.executeQuery(sql);
+
+        Field[] fields = type.getDeclaredFields();
+        T entity = null;
+        if (resultSet.next()) // Only care about first entry
+        {
+            entity = type.getConstructor().newInstance();
+            for (Field field : fields)
+            {
+                if( ! field.isAnnotationPresent(Exclude.class) )
+                {
+                    String fieldName = getFieldName(field);
+                    Object colum = resultSet.getObject(fieldName);
+                    field.setAccessible(true);
+                    field.set(entity, colum);
+                }
+            }
+        }
+
+        myConnection.close();
+
+        return entity;
     }
 
     /**
@@ -98,7 +129,7 @@ public class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    public <T> boolean insertQuery(String sql, T entity)
+    public <T> boolean insert(String sql, T entity)
             throws SQLException, IllegalAccessException
     {
         return writer(sql, entity);
@@ -113,7 +144,7 @@ public class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    public <T> boolean updateQuery(String sql, T entity)
+    public <T> boolean update(String sql, T entity)
             throws SQLException, IllegalAccessException
     {
         return this.writer(sql, entity);
@@ -128,10 +159,25 @@ public class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    public <T> boolean deleteQuery(String sql, T entity)
+    public <T> boolean delete(String sql, T entity)
             throws SQLException, IllegalAccessException
     {
         return writer(sql, entity);
+    }
+
+    /**
+     *
+     * @return Open database connection
+     * @throws Exception
+     */
+    private Connection getConnection()
+            throws SQLException
+    {
+        Connection myConnection = DriverManager.getConnection(
+                        settings.getUrlWithDatabase(),
+                        settings.getUsername(),
+                        settings.getPassword());
+        return myConnection;
     }
 
     /**
@@ -143,17 +189,23 @@ public class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    private <T> boolean writer(String sql, T entity) throws SQLException, IllegalAccessException
+    private <T> boolean writer(String sql, T entity)
+            throws SQLException, IllegalAccessException
     {
+
         Parameters parameters = Parameters.parse(sql);
 
         Class<T> type = (Class<T>) entity.getClass();
-        Field[] fields = type.getFields();
+        Field[] fields = type.getDeclaredFields();
         for (Field field : fields)
         {
-            String name = field.getName();
-            Object value = field.get(entity);
-            parameters.put(name, value);
+            field.setAccessible(true);
+            if( ! field.isAnnotationPresent(Exclude.class)) {
+
+                String name = getFieldName(field);
+                Object value = field.get(entity);
+                parameters.put(name, value);
+            }
         }
 
         Connection myConnection = getConnection();
@@ -165,5 +217,26 @@ public class YetAnotherMicroORM implements MicroORM
         myConnection.close();
 
         return result;
+    }
+
+    /**
+     *
+     * @param field
+     * @return
+     */
+    private String getFieldName(Field field)
+    {
+
+        Column column = field.getAnnotation(Column.class);
+        if(column != null)
+        {
+            String name = column.name();
+            if (name != null)
+            {
+                return name;
+            }
+        }
+
+        return field.getName();
     }
 }
