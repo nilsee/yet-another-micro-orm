@@ -24,13 +24,13 @@ public class EmployeeRepository {
         return this.orm;
     }
 
-    public boolean create(Employee employee) {
+    public Employee create(Employee employee) {
         String sql = "INSERT INTO Employee(email, first_name, last_name) VALUES (:email, :first_name, :last_name)";
         try {
             return getOrm().insert(sql, employee);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return false;
+            return null;
         }
     }
 
@@ -47,7 +47,8 @@ public class EmployeeRepository {
     public boolean update(Employee employee) {
         String sql = "UPDATE Employee SET email = :email, first_name = :first_name, last_name = :last_name WHERE id = :id";
         try {
-            return getOrm().update(sql, employee);
+             getOrm().update(sql, employee);
+             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
@@ -57,7 +58,8 @@ public class EmployeeRepository {
     public boolean delete(Employee employee) {
         String sql = "DELETE FROM Employee WHERE id = :id";
         try {
-            return getOrm().delete(sql, employee);
+            getOrm().delete(sql, employee);
+            return true;
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

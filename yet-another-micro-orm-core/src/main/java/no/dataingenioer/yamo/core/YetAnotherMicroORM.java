@@ -16,6 +16,7 @@ import org.httprpc.sql.Parameters;
 
 import no.dataingenioer.yamo.core.annotations.Column;
 import no.dataingenioer.yamo.core.annotations.Exclude;
+import no.dataingenioer.yamo.core.annotations.Id;
 import no.dataingenioer.yamo.core.utils.ConnectionSettings;
 
 /**
@@ -60,22 +61,35 @@ public final class YetAnotherMicroORM implements MicroORM
         while (resultSet.next()) {
 
             T entity = type.getConstructor().newInstance();
-            for (Field field : fields) {
-
-                if( ! field.isAnnotationPresent(Exclude.class) ) {
-
-                    String fieldName = getColumnName(field);
-                    Object colum = resultSet.getObject(fieldName);
-                    field.setAccessible(true);
-                    field.set(entity, colum);
-                }
-            }
+            addDataToFields(resultSet, fields, entity);
             results.add(entity);
         }
 
         myConnection.close();
 
         return results;
+    }
+
+    /**
+     *
+     * @param resultSet
+     * @param fields
+     * @param entity
+     * @param <T>
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
+    private <T> void addDataToFields(ResultSet resultSet, Field[] fields, T entity) throws SQLException, IllegalAccessException {
+        for (Field field : fields) {
+
+            if( ! field.isAnnotationPresent(Exclude.class) ) {
+
+                String fieldName = getColumnName(field);
+                Object colum = resultSet.getObject(fieldName);
+                field.setAccessible(true);
+                field.set(entity, colum);
+            }
+        }
     }
 
     /**
@@ -102,16 +116,7 @@ public final class YetAnotherMicroORM implements MicroORM
         if (resultSet.next()) { // Only care about first entry
 
             entity = type.getConstructor().newInstance();
-            for (Field field : fields) {
-
-                if( ! field.isAnnotationPresent(Exclude.class) ) {
-
-                    String fieldName = getColumnName(field);
-                    Object colum = resultSet.getObject(fieldName);
-                    field.setAccessible(true);
-                    field.set(entity, colum);
-                }
-            }
+            addDataToFields(resultSet, fields, entity);
         }
 
         myConnection.close();
@@ -128,10 +133,10 @@ public final class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    public <T> boolean insert(String sql, T entity)
+    public <T> T insert(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
-       return this.writer(sql, entity);
+       return this.writer(sql, entity, true);
     }
 
     /**
@@ -143,10 +148,10 @@ public final class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    public <T> boolean update(String sql, T entity)
+    public <T> void update(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
-        return this.writer(sql, entity);
+        this.writer(sql, entity);
     }
 
     /**
@@ -158,10 +163,10 @@ public final class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    public <T> boolean delete(String sql, T entity)
+    public <T> void delete(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
-        return writer(sql, entity);
+        writer(sql, entity);
     }
 
     /**
@@ -188,7 +193,7 @@ public final class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    private <T> boolean writer(String sql, T entity)
+    private <T> void writer(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
         Parameters parameters = Parameters.parse(sql);
@@ -209,9 +214,72 @@ public final class YetAnotherMicroORM implements MicroORM
         Connection myConnection = getConnection();
         PreparedStatement myStatement = myConnection.prepareStatement(parameters.getSQL());
         parameters.apply(myStatement);
-        boolean result = myStatement.execute();
+        myStatement.executeUpdate();
         myConnection.close();
-        return result;
+    }
+
+    /**
+     *
+     * @param sql
+     * @param entity
+     * @param <T>
+     * @return
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
+    private <T> T writer(String sql, T entity, boolean addId)
+            throws SQLException, IllegalAccessException {
+
+        Parameters parameters = Parameters.parse(sql);
+        Class<T> type = (Class<T>) entity.getClass();
+        Field[] fields = type.getDeclaredFields();
+
+        for (Field field : fields) {
+
+            if( ! field.isAnnotationPresent(Exclude.class)) {
+
+                field.setAccessible(true);
+                String name = getColumnName(field);
+                Object value = field.get(entity);
+                parameters.put(name, value);
+            }
+        }
+
+        Connection myConnection = getConnection();
+
+        PreparedStatement myStatement;
+        if(addId) {
+
+           myStatement = myConnection.prepareStatement(parameters.getSQL(), Statement.RETURN_GENERATED_KEYS);
+        } else {
+
+            myStatement = myConnection.prepareStatement(parameters.getSQL());
+        }
+
+        parameters.apply(myStatement);
+
+        myStatement.executeUpdate();
+
+        if(addId) {
+
+            ResultSet rs = myStatement.getGeneratedKeys();
+            if (rs.next()) {
+
+                int id = rs.getInt(1);
+                for (Field field : fields) {
+
+                    if (field.isAnnotationPresent(Id.class)) {
+
+                        field.setAccessible(true);
+                        field.set(entity, id);
+                    }
+                }
+            }
+        }
+
+        myConnection.close();
+
+        return entity;
     }
 
     /**
@@ -232,4 +300,5 @@ public final class YetAnotherMicroORM implements MicroORM
         }
         return field.getName();
     }
+
 }

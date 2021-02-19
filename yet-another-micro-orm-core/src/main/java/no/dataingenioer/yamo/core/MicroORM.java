@@ -21,7 +21,7 @@ public interface MicroORM {
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    <T> boolean insert(String sql, T entity) throws
+    <T> T insert(String sql, T entity) throws
             SQLException, IllegalAccessException;
 
     // Read
@@ -67,7 +67,7 @@ public interface MicroORM {
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    <T> boolean update(String sql, T entity) throws
+    <T> void update(String sql, T entity) throws
             SQLException, IllegalAccessException;
 
     // Delete
@@ -81,7 +81,7 @@ public interface MicroORM {
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    <T> boolean delete(String sql, T entity) throws
+    <T> void delete(String sql, T entity) throws
             SQLException, IllegalAccessException;
 
 }

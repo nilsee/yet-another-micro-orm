@@ -3,10 +3,13 @@ package no.dataingnioer.yamo.demo;
 import no.dataingenioer.yamo.core.annotations.Entity;
 import no.dataingenioer.yamo.core.annotations.Column;
 import no.dataingenioer.yamo.core.annotations.Exclude;
+import no.dataingenioer.yamo.core.annotations.Id;
 
 @Entity
 public class Employee {
 
+    @Id
+    @Column(name = "id")
     private int id;
 
     private String email;
