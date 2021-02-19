@@ -1,4 +1,4 @@
-package no.dataingnioer.yamo.demo;
+package no.dataingnioer.yamo.demo.model;
 
 public class EmployeeBuilder {
 

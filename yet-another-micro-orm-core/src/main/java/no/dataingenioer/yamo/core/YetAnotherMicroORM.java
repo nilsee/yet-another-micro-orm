@@ -72,28 +72,6 @@ public final class YetAnotherMicroORM implements MicroORM
 
     /**
      *
-     * @param resultSet
-     * @param fields
-     * @param entity
-     * @param <T>
-     * @throws SQLException
-     * @throws IllegalAccessException
-     */
-    private <T> void addDataToFields(ResultSet resultSet, Field[] fields, T entity) throws SQLException, IllegalAccessException {
-        for (Field field : fields) {
-
-            if( ! field.isAnnotationPresent(Exclude.class) ) {
-
-                String fieldName = getColumnName(field);
-                Object colum = resultSet.getObject(fieldName);
-                field.setAccessible(true);
-                field.set(entity, colum);
-            }
-        }
-    }
-
-    /**
-     *
      * @param sql
      * @param type
      * @param <T>
@@ -136,7 +114,7 @@ public final class YetAnotherMicroORM implements MicroORM
     public <T> T insert(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
-       return this.writer(sql, entity, true);
+        return this.writer(sql, entity, true);
     }
 
     /**
@@ -151,7 +129,7 @@ public final class YetAnotherMicroORM implements MicroORM
     public <T> void update(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
-        this.writer(sql, entity);
+        this.writer(sql, entity, false);
     }
 
     /**
@@ -166,7 +144,7 @@ public final class YetAnotherMicroORM implements MicroORM
     public <T> void delete(String sql, T entity)
             throws SQLException, IllegalAccessException {
 
-        writer(sql, entity);
+        writer(sql, entity, false);
     }
 
     /**
@@ -182,40 +160,6 @@ public final class YetAnotherMicroORM implements MicroORM
                         settings.getUsername(),
                         settings.getPassword());
         return myConnection;
-    }
-
-    /**
-     *
-     * @param sql
-     * @param entity
-     * @param <T>
-     * @return
-     * @throws SQLException
-     * @throws IllegalAccessException
-     */
-    private <T> void writer(String sql, T entity)
-            throws SQLException, IllegalAccessException {
-
-        Parameters parameters = Parameters.parse(sql);
-        Class<T> type = (Class<T>) entity.getClass();
-        Field[] fields = type.getDeclaredFields();
-
-        for (Field field : fields) {
-
-            if( ! field.isAnnotationPresent(Exclude.class)) {
-
-                field.setAccessible(true);
-                String name = getColumnName(field);
-                Object value = field.get(entity);
-                parameters.put(name, value);
-            }
-        }
-
-        Connection myConnection = getConnection();
-        PreparedStatement myStatement = myConnection.prepareStatement(parameters.getSQL());
-        parameters.apply(myStatement);
-        myStatement.executeUpdate();
-        myConnection.close();
     }
 
     /**
@@ -281,6 +225,30 @@ public final class YetAnotherMicroORM implements MicroORM
 
         return entity;
     }
+
+
+    /**
+     *
+     * @param resultSet
+     * @param fields
+     * @param entity
+     * @param <T>
+     * @throws SQLException
+     * @throws IllegalAccessException
+     */
+    private <T> void addDataToFields(ResultSet resultSet, Field[] fields, T entity) throws SQLException, IllegalAccessException {
+        for (Field field : fields) {
+
+            if( ! field.isAnnotationPresent(Exclude.class) ) {
+
+                String fieldName = getColumnName(field);
+                Object colum = resultSet.getObject(fieldName);
+                field.setAccessible(true);
+                field.set(entity, colum);
+            }
+        }
+    }
+
 
     /**
      *

@@ -1,17 +1,21 @@
 package no.dataingnioer.yamo.demo;
 
+import static no.dataingenioer.yamo.core.utils.ConnectionSettings.getConnectionSettings;
+import static no.dataingnioer.yamo.demo.utils.MailUtils.generateRandomEmail;
+import static no.dataingnioer.yamo.demo.utils.PrintUtils.print;
+
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Iterator;
 
 import no.dataingenioer.yamo.core.utils.ConnectionSettings;
+import no.dataingnioer.yamo.demo.model.Employee;
+import no.dataingnioer.yamo.demo.model.EmployeeBuilder;
+import no.dataingnioer.yamo.demo.repository.EmployeeRepository;
 
 public class Application {
 
     public static void main(String [] args) throws IOException {
 
-        ConnectionSettings connectionSettings = ConnectionSettings
-                .getConnectionSettings(getConfigFile("configuration.properties"));
+        ConnectionSettings connectionSettings = getConnectionSettings(getConfigFile("configuration.properties"));
 
         EmployeeRepository employeeRepository = new EmployeeRepository(connectionSettings);
 
@@ -57,24 +61,4 @@ public class Application {
         return  System.getProperty("user.dir")+ "/yet-another-micro-orm-demo/src/main/java/no/dataingnioer/yamo/demo/" + fileName;
     }
 
-    private static void print(Iterator<Employee> iterator, PrintStream out){
-        while (iterator.hasNext()) {
-            Employee employee = iterator.next();
-            out.print( "ID: " + employee.getId());
-            out.print( ", Epost: " + employee.getEmail());
-            out.print( ", Fornavn: " + employee.getFirstName());
-            out.println( ", Etternavn: " + employee.getLastName());
-        }
-        out.println("-------------------------------------------------------");
-    }
-
-    private static final String ALPHA_NUMERIC_STRING = "abcdefghijklmnopqrstuvwxyz0123456789";
-    public static String generateRandomEmail(int count) {
-        StringBuilder builder = new StringBuilder();
-        while (count-- != 0) {
-            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
-            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
-        }
-        return builder.toString() + "@example.com";
-    }
 }

@@ -1,4 +1,4 @@
-package no.dataingnioer.yamo.demo;
+package no.dataingnioer.yamo.demo.repository;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import no.dataingenioer.yamo.core.MicroORM;
 import no.dataingenioer.yamo.core.YetAnotherMicroORM;
 import no.dataingenioer.yamo.core.utils.ConnectionSettings;
+import no.dataingnioer.yamo.demo.model.Employee;
 
 public class EmployeeRepository {
 

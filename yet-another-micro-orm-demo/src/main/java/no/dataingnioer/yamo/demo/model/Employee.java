@@ -1,4 +1,4 @@
-package no.dataingnioer.yamo.demo;
+package no.dataingnioer.yamo.demo.model;
 
 import no.dataingenioer.yamo.core.annotations.Entity;
 import no.dataingenioer.yamo.core.annotations.Column;
