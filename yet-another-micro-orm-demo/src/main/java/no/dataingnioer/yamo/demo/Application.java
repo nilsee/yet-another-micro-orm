@@ -68,7 +68,7 @@ public class Application {
         out.println("-------------------------------------------------------");
     }
 
-    private static final String ALPHA_NUMERIC_STRING = "abcdefghijklmnopqrstuvwxyz";
+    private static final String ALPHA_NUMERIC_STRING = "abcdefghijklmnopqrstuvwxyz0123456789";
     public static String generateRandomEmail(int count) {
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
