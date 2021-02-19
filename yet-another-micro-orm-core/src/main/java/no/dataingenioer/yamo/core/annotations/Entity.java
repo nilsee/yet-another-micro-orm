@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Entity {
     /* TODO: Verify table name in query */
-    String name();
+    String name() default "";
 }

@@ -2,6 +2,7 @@ package no.dataingenioer.yamo.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,9 +28,9 @@ public interface MicroORM {
 
     /**
      *
+     * @param <T>
      * @param sql
      * @param type
-     * @param <T>
      * @return
      * @throws SQLException
      * @throws NoSuchMethodException
@@ -37,7 +38,7 @@ public interface MicroORM {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    <T> List<T> select(String sql, Class<T> type) throws
+    <T> Collection<T> select(String sql, Class<T> type) throws
             SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException;
 
     /**
