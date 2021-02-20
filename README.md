@@ -16,4 +16,6 @@ Micro ORM for Java
 -   yamo.username=
 -   yamo.password=
 
-# Setup
+# Setup demo
+-   properties file
+-   database with emplyee.sql table created
