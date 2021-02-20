@@ -15,3 +15,5 @@ Micro ORM for Java
 -   yamo.driver=
 -   yamo.username=
 -   yamo.password=
+
+# Setup
