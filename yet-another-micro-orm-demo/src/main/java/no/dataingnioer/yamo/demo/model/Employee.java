@@ -58,4 +58,13 @@ public class Employee {
     public String getFullName() {
         return fullName;
     }
+
+    @Override
+    public String toString() {
+        return "ID: " + getId() +
+                ", Epost: " + getEmail() +
+                ", Fornavn: " + getFirstName() +
+                ", Etternavn: " + getLastName();
+    }
+
 }

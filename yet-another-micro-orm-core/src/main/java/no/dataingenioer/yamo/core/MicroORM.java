@@ -53,7 +53,7 @@ public interface MicroORM {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    <T> T selectSingle(String sql, Class<T> type) throws
+    <T> T selectSingle(String sql, Class<T> type, int id) throws
             SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException;
 
     // Update

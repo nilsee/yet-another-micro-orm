@@ -55,6 +55,7 @@ public class Application {
             System.out.println(String.format("Employee %d could not be deleted.", employee.getId()));
             System.exit(-1);
         }
+
     }
 
     private static String getConfigFile(String fileName) {

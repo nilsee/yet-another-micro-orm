@@ -35,6 +35,16 @@ public class EmployeeRepository {
         }
     }
 
+    public Employee read(int id) {
+        String sql = "SELECT * FROM Employee WHERE Id = %d";
+        try {
+            return getOrm().selectSingle(sql, Employee.class, id);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     public Collection<Employee> readAll() {
         String sql = "SELECT * FROM Employee";
         try {

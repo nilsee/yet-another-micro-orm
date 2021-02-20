@@ -82,8 +82,10 @@ public final class YetAnotherMicroORM implements MicroORM
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    public <T> T selectSingle(String sql, Class<T> type)
+    public <T> T selectSingle(String sql, Class<T> type, int id)
             throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        sql = String.format(sql, id);
 
         Connection myConnection = getConnection();
         Statement myStatement = myConnection.createStatement();
@@ -226,7 +228,6 @@ public final class YetAnotherMicroORM implements MicroORM
         return entity;
     }
 
-
     /**
      *
      * @param resultSet
@@ -236,7 +237,8 @@ public final class YetAnotherMicroORM implements MicroORM
      * @throws SQLException
      * @throws IllegalAccessException
      */
-    private <T> void addDataToFields(ResultSet resultSet, Field[] fields, T entity) throws SQLException, IllegalAccessException {
+    private <T> void addDataToFields(ResultSet resultSet, Field[] fields, T entity)
+            throws SQLException, IllegalAccessException {
         for (Field field : fields) {
 
             if( ! field.isAnnotationPresent(Exclude.class) ) {
@@ -248,7 +250,6 @@ public final class YetAnotherMicroORM implements MicroORM
             }
         }
     }
-
 
     /**
      *
