@@ -5,9 +5,17 @@ import java.util.Iterator;
 
 import no.dataingnioer.yamo.demo.model.Employee;
 
+/**
+ *
+ */
 public class PrintUtils {
 
-    public static void print(Iterator<Employee> iterator, PrintStream out) {
+    /**
+     *
+     * @param iterator
+     * @param out
+     */
+    public static void printEmployeeList(Iterator<Employee> iterator, PrintStream out) {
 
         while (iterator.hasNext()) {
 

@@ -5,75 +5,166 @@ import java.util.LinkedList;
 
 import no.dataingenioer.yamo.core.MicroORM;
 import no.dataingenioer.yamo.core.YetAnotherMicroORM;
-import no.dataingenioer.yamo.core.utils.ConnectionSettings;
+import no.dataingenioer.yamo.core.query.QueryBuilder;
+import no.dataingenioer.yamo.core.query.SimpleSqlBuilder;
+import no.dataingenioer.yamo.core.configuration.ConnectionSettings;
+import no.dataingenioer.yamo.core.repository.EntityRepository;
 import no.dataingnioer.yamo.demo.model.Employee;
 
-public class EmployeeRepository {
+/**
+ * Demo entity repository for Employee, implemented using MicorORM and QueryBuilder
+ *
+ * @Author Nils Einar Eide
+ * @Email nils@dataingenioer.no
+ */
+public class EmployeeRepository implements EntityRepository<Employee>
+{
 
+    /**
+     *
+     */
     private ConnectionSettings connectionSettings;
 
+    /**
+     *
+     */
     private MicroORM orm;
 
+    /**
+     *
+     */
+    private QueryBuilder queryBuilder;
+
+    /**
+     *
+     * @param connectionSettings
+     */
     public EmployeeRepository(ConnectionSettings connectionSettings) {
+
         this.connectionSettings = connectionSettings;
+        this.queryBuilder = new SimpleSqlBuilder(Employee.class);
     }
 
-    private MicroORM getOrm() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        if(this.orm == null ) {
+    /**
+     *
+     * @return
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws ClassNotFoundException
+     */
+    private MicroORM getOrmInstance()
+            throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+
+        if(this.orm == null) {
+
             this.orm = new YetAnotherMicroORM(this.connectionSettings);
         }
+
         return this.orm;
     }
 
+    /**
+     *
+     * @param employee
+     * @return
+     */
     public Employee create(Employee employee) {
-        String sql = "INSERT INTO Employee(email, first_name, last_name) VALUES (:email, :first_name, :last_name)";
+
+        // String sql = "INSERT INTO employee(email, first_name, last_name) VALUES (:email, :first_name, :last_name)";
+
         try {
-            return getOrm().insert(sql, employee);
+
+            return getOrmInstance().insert(getQueryBuilder(), employee);
         } catch (Exception ex) {
+
             ex.printStackTrace();
             return null;
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     public Employee read(int id) {
-        String sql = "SELECT * FROM Employee WHERE Id = %d";
+
+        // String sql = "SELECT * FROM employee WHERE id = %d";
+
         try {
-            return getOrm().selectSingle(sql, Employee.class, id);
+
+            return getOrmInstance().selectSingle(getQueryBuilder(), Employee.class, id);
         } catch (Exception ex) {
+
             ex.printStackTrace();
             return null;
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Collection<Employee> readAll() {
-        String sql = "SELECT * FROM Employee";
+
+        // String sql = "SELECT * FROM employee";
+
         try {
-            return getOrm().select(sql, Employee.class);
+
+            return getOrmInstance().select(getQueryBuilder(), Employee.class);
         } catch (Exception ex) {
+
             ex.printStackTrace();
             return new LinkedList<Employee>();
         }
     }
 
+    /**
+     *
+     * @param employee
+     * @return
+     */
     public boolean update(Employee employee) {
-        String sql = "UPDATE Employee SET email = :email, first_name = :first_name, last_name = :last_name WHERE id = :id";
+
+        // String sql = "UPDATE employee SET email = :email, first_name = :first_name, last_name = :last_name WHERE id = :id";
+
         try {
-             getOrm().update(sql, employee);
+
+             getOrmInstance().update(getQueryBuilder(), employee);
              return true;
         } catch (Exception ex) {
+
             ex.printStackTrace();
             return false;
         }
     }
 
+    /**
+     *
+     * @param employee
+     * @return
+     */
     public boolean delete(Employee employee) {
-        String sql = "DELETE FROM Employee WHERE id = :id";
+
+        // String sql = "DELETE FROM employee WHERE id = :id";
+
         try {
-            getOrm().delete(sql, employee);
+
+            getOrmInstance().delete(getQueryBuilder(), employee);
             return true;
         } catch (Exception ex) {
+
             ex.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public QueryBuilder getQueryBuilder() {
+
+        return queryBuilder;
     }
 }

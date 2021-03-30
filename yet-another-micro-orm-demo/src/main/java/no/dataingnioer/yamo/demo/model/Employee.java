@@ -1,12 +1,13 @@
 package no.dataingnioer.yamo.demo.model;
 
-import no.dataingenioer.yamo.core.annotations.Entity;
 import no.dataingenioer.yamo.core.annotations.Column;
+import no.dataingenioer.yamo.core.annotations.Entity;
 import no.dataingenioer.yamo.core.annotations.Exclude;
 import no.dataingenioer.yamo.core.annotations.Id;
+import no.dataingenioer.yamo.core.repository.AbstractEntity;
 
-@Entity
-public class Employee {
+@Entity(tableName = "employee")
+public class Employee extends AbstractEntity {
 
     @Id
     @Column(name = "id")
@@ -23,19 +24,13 @@ public class Employee {
     @Exclude
     private String fullName;
 
-    public int getId() {
-        return this.id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getEmail() {
         return this.email;
     }
 
-    public void setEmail(String email) { this.email = email;  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getFirstName() {
         return this.firstName;
@@ -43,7 +38,7 @@ public class Employee {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-        this.fullName = this.firstName + " " + this.lastName;
+        resetFullName();
     }
 
     public String getLastName() {
@@ -52,19 +47,41 @@ public class Employee {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-        this.fullName = this.firstName + " " + this.lastName;
+        resetFullName();
     }
 
     public String getFullName() {
+        resetFullName();
         return fullName;
     }
 
     @Override
     public String toString() {
-        return "ID: " + getId() +
-                ", Epost: " + getEmail() +
-                ", Fornavn: " + getFirstName() +
-                ", Etternavn: " + getLastName();
+
+        return String.format( "ID: %d, Epost: '%s', Fornavn: '%s', Etternavn: '%s', Created by: '%s', Updated by: '%s'"
+                , getId()
+                , getEmail()
+                , getFirstName()
+                , getLastName()
+                , getCreatedBy()
+                , getUpdatedBy());
+    }
+
+    @Override
+    public int getId() {
+
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+
+        this.id = id;
+    }
+
+    private void resetFullName() {
+
+        this.fullName = String.format("%s, %s", this.lastName, this.firstName);
     }
 
 }
